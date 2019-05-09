@@ -31,9 +31,9 @@ class ScannerScreen extends React.Component {
         </View>
       );
     }
-    return (<ExpoScanner items={this.props.items} />);
+    return (<ExpoScanner items={{...this.props.items}} />);
   }
-}
+};
 
 const styles = {
   container: {

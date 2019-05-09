@@ -11,7 +11,7 @@ import Modal from '../components/commons/Modal'
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
-    header: null,
+    header: true,
   };
 
   render() {

@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
 import { Container, Content, List } from 'native-base';
-import { View } from 'react-native';
+import { View , Text, StatusBar } from 'react-native';
 import {Font, AppLoading} from 'expo';
-import {withApollo, compose, graphql} from 'react-apollo';
+import {withApollo, compose} from 'react-apollo';
 
 import InputBox from './InputBox';
 import TodoList from './TodoList';
 import ScannerScreen from '../Barcode/ScannerScreen';
-import WithItems from '../Subscription/WithItems'
-
-import { fetchItems } from '../../queries/store'
+import WithItems from '../Subscription/WithItems';
+import Employee from '../Subscription/Employee';
 
 class Todo extends Component {
 
@@ -25,18 +24,6 @@ class Todo extends Component {
     this.setState({
       filter: type
     })
-  }
-
-  async componentDidMount() {
-    // let data = await this.props.client.query({
-    //   query: fetchItems
-    // })
-    // // let data = await this.props.data
-    // // let data = await this.props.client.subscribe({
-    // //   query: fetchItems,
-    // //   fetchPolicy: 'network-only'
-    // // });
-    // console.log(data)
   }
 
   async componentWillMount() {
@@ -56,15 +43,29 @@ class Todo extends Component {
     }
     return (
       <Container>
-        <ScannerScreen items={this.props.items}/>
-        <InputBox/>
-        <Content contentContainerStyle={{ justifyContent: 'space-between' }} >
+
+        <ScannerScreen  style={{ flex: 1 }} items={this.props.items}/>
+
+        <Content style={{ flex: 0.8 }}>
           <View >
+            <InputBox />
+          </View>
+          <View  style={{ flex: 3 }} >
             <List>
               <TodoList items={this.props.items}/>
             </List>
           </View>
         </Content>
+        <View
+          style={{
+            padding: 5,
+            marginVertical: 5,
+            borderTopWidth: 0.5
+          }}
+        >
+          <Employee />
+        </View>
+
       </Container>
     );
   }
