@@ -4,7 +4,6 @@ import { Camera, BarCodeScanner, Permissions, Constants } from 'expo';
 import {withApollo} from 'react-apollo';
 import { insertProduct } from '../../queries';
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -72,20 +71,17 @@ class ExpoScanner extends Component {
     if ((type === this.state.scannedItem.type && data === this.state.scannedItem.data) || data === null) {
       return;
     }
-    // alert(`Bar code type : ${type} and data : ${data} `);
-    this.setState({ 
-      scannedItem: { data, type }, 
-      showModal: true 
-    });
 
     Vibration.vibrate(100);
 
-    this.props.client.mutate({
-      mutation: insertProduct,
-      variables: {
-        text: data
-      }
-    })
+    const { items } = this.props.items;
+
+    let itemSearched = items.find(({barcode}) => barcode === data);
+
+    this.setState({ 
+      scannedItem: { data : itemSearched.name, type },
+    });
+    
   }
 
   renderMessage() {
@@ -112,9 +108,6 @@ class ExpoScanner extends Component {
 
   render() {
     const { hasCameraPermission } = this.state;
-    const { height, width } = Dimensions.get('window');
-    const maskRowHeight = Math.round((height - 300) / 20);
-    const maskColWidth = (width - 300) / 2;
 
     // if (hasCameraPermission === null) {
     //   return <Text>Requesting for camera permission</Text>;
@@ -128,7 +121,6 @@ class ExpoScanner extends Component {
           <BarCodeScanner
             onBarCodeScanned={this.onBarCodeRead}
             style={{...StyleSheet.absoluteFill, height: 100}}
-            // style={styles.cameraView}
           />
           {this.renderMessage()}
         </View>
