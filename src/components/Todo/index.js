@@ -10,7 +10,6 @@ import ScannerScreen from '../Barcode/ScannerScreen';
 import WithItems from '../Subscription/WithItems';
 import Employee from '../Subscription/Employee';
 
-
 import GroceryContext from '../GroceryContext';
 import GroceryItem from './GroceryItem'; 
 
@@ -32,6 +31,7 @@ class Todo extends Component {
     })
   }
 
+  
   async componentWillMount() {
     await Font.loadAsync({
       'Roboto': require('native-base/Fonts/Roboto.ttf'),
@@ -42,19 +42,24 @@ class Todo extends Component {
       this.setState({ loading: false });
     }.bind(this), 2000)
   }
+ 
 
   updateValue = (key, val) => {
-    this.setState({[key]: val});
+    // this.setState({[key]: val});
+    this.setState({GroceryItems: val});
   }
 
   getTotalAmount(){ 
-     
+
     let total = 0; 
     this.state.GroceryItems.map((item) => { 
       total = total +  item.price; 
     }) 
      return total; 
   }
+
+  
+
 
   render() {
     if (this.state.loading) {
@@ -67,6 +72,7 @@ class Todo extends Component {
           
             <ScannerScreen items={this.props.items} />  
 
+            {/*<Content contentContainerStyle={{ justifyContent: 'space-between' }} >  */}
             <Content contentContainerStyle={{ justifyContent: 'space-between' }} > 
             <View >
             <InputBox />

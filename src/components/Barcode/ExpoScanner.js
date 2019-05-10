@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
 import { View, Text, Vibration, StyleSheet, ListView, Dimensions } from 'react-native'; 
 import { Camera, BarCodeScanner, Permissions, Constants } from 'expo';
-import {withApollo, compose} from 'react-apollo';
-import { insertProduct } from '../../queries';
-
-
-import withContext from "../Subscription/WithContext";
+import {withApollo, compose} from 'react-apollo';  
+import withContext from "../Subscription/WithContext";  
 
 const styles = StyleSheet.create({
   container: {
@@ -47,10 +44,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   maskCenter: { flexDirection: 'row' },
-});
-
-var GroceryItems = [] ; 
-
+}); 
 class ExpoScanner extends Component {
   constructor(props) {
     super(props);
@@ -63,7 +57,8 @@ class ExpoScanner extends Component {
       hasCameraPermission: null,
       type: Camera.Constants.Type.back,
       showModal: false,  
-        ReturnMessage:"" 
+        ReturnMessage:"",
+        GroceryItems:[]
     };
   } 
 
@@ -71,32 +66,45 @@ class ExpoScanner extends Component {
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
     await this.setState({hasCameraPermission: status === 'granted'});
     await this.resetScanner();
-  }
+  } 
 
+  getTimestampForId(){
+    // const dateTime = +new Date();
+    // return timestamp = Math.floor(dateTime / 1000);
+    return Math.random().toString(36).substring(2) 
+    + (new Date()).getTime().toString(36); 
+  }
+ 
   onBarCodeRead({ type, data } ) {
     if ((type === this.state.scannedItem.type && data === this.state.scannedItem.data) || data === null) {
       return;
-    } 
-  
-    Vibration.vibrate(100);
+    }  
 
     const { items } = this.props.items;
 
-    let itemSearched = items.find(({barcode}) => barcode === data);
+    let searchResult = items.find(({barcode}) => barcode === data);
+  
+    if(searchResult==null)
+      return; 
 
-    if(itemSearched==null)
-      return;
+    Vibration.vibrate(100);
 
-    //Adding Items To Array.
-    GroceryItems.push( itemSearched );
+    let itemSearched = Object.assign({}, searchResult);//creating copy of object
+    itemSearched.itemId = this.getTimestampForId();    //updating property/value 
+  
+    //Adding Item To Array
+    this.setState(prevState => ({
+      GroceryItems: [
+          ...prevState.GroceryItems, itemSearched
+      ]
+    }))  
+    
+    this.props.context.updateValue( 'GroceryItems', this.state.GroceryItems);
  
-    this.props.context.updateValue( 'GroceryItems', GroceryItems);
-
     this.setState({ 
       scannedItem: { data : itemSearched.name, type },
       // scannedItem: { data : GroceryItems, type },
-    }); 
-    
+    });  
   }
 
   renderMessage() {
@@ -120,10 +128,7 @@ class ExpoScanner extends Component {
       }
     });
   }
-
-  // var categories = [{ id: 0, text: 'hasan' }, 
-  //   { id: 1, text: 'erkan' },
-  //   { id: 2, text: 'veli' }];
+ 
  
   renderCategories() {
       return SampleArray.map((item, index) => <Text key={index}>{item.name}</Text>);
@@ -139,6 +144,7 @@ class ExpoScanner extends Component {
   } 
 
   render() {
+    
     const { hasCameraPermission } = this.state;
 
     // if (hasCameraPermission === null) {

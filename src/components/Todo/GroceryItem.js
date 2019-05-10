@@ -1,13 +1,25 @@
 import React from 'react';
 import { Text, ListItem, Body, View, Icon } from 'native-base';
-import DeleteButton from './DeleteButton';
 
-const deleteItem = () => {
-    // if (loading) return;
-    // deleteTodo();
-  }
+import {compose} from 'react-apollo';  
+import withContext from "../Subscription/WithContext";  
+ 
 
-const GroceryItem = ({ data, itemCount }) => {
+const GroceryItem = ({context, data, itemCount}) => {
+ 
+  const deleteItem = ({data}) => {
+  
+      let currItems = context.state.GroceryItems; 
+      // console.log("currItems"); 
+      // console.log(currItems); 
+         
+      let filteredArray = currItems.filter(item => {  
+          return item.itemId !== data.itemId}
+        )
+ 
+       context.updateValue( 'GroceryItems', filteredArray); 
+    }
+     
   return (
   <View> 
     <ListItem style={{ flex: 1 }}>
@@ -31,14 +43,16 @@ const GroceryItem = ({ data, itemCount }) => {
       </Body>
      
       <Icon
-            name="md-trash"
-            style={{ color: '#EE001C' }}
-            onPress={deleteItem} 
-          /> 
+          name="md-trash"
+          style={{ color: '#EE001C' }}
+          onPress={ ()=> deleteItem({data})} 
+        /> 
 
     </ListItem>
     {/* <Toast visible={true} message={`Saving...`} /> */}
   </View>
 )};
-
-export default GroceryItem;
+ 
+export default compose( 
+  withContext
+)(GroceryItem);
