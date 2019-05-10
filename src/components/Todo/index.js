@@ -5,14 +5,14 @@ import {Font, AppLoading} from 'expo';
 import {withApollo, compose} from 'react-apollo';
 
 import InputBox from './InputBox';
-import TodoList from './TodoList';
 import ScannerScreen from '../Barcode/ScannerScreen';
 import WithItems from '../Subscription/WithItems';
 import Employee from '../Subscription/Employee';
 
-
 import GroceryContext from '../GroceryContext';
 import GroceryItem from './GroceryItem'; 
+
+import {insertOrders} from '../../queries/store'
 
 class Todo extends Component {
 
@@ -43,9 +43,11 @@ class Todo extends Component {
       'Ionicons': require('native-base/Fonts/Ionicons.ttf')
     });
   }
+ 
 
   updateValue = (key, val) => {
-    this.setState({[key]: val});
+    // this.setState({[key]: val});
+    this.setState({GroceryItems: val});
   }
 
   getTotalAmount(){ 
@@ -58,7 +60,7 @@ class Todo extends Component {
 
   onSubmit = () => {
     Alert.alert(
-      'BUY Item',
+      'Buy Item',
       'Do you want to buy this item now?',
       [
         {
@@ -66,8 +68,16 @@ class Todo extends Component {
           onPress: () => console.log('Cancel Pressed'),
           style: 'cancel',
         },
-        {text: 'OK', onPress: () => {
-          console.log(this.props)
+        {text: 'OK', onPress: async () => {
+          await this.props.client.mutate({
+            mutation: insertOrders,
+            variables: {
+              amount: 100, 
+              date_ordered: "now()", 
+              employee_id: 1, 
+              order_items: [{item_id: 2}, {item_id: 1}, {item_id: 2}]
+            }
+          })
         }},
       ],
       {cancelable: false},
@@ -78,35 +88,37 @@ class Todo extends Component {
     if (this.state.loading) {
       return <AppLoading />; 
     }
- 
     return (
       <Container>
-        <GroceryContext.Provider value={{state: this.state, updateValue: this.updateValue}}>      
-          <ScannerScreen items={this.props.items} />  
-          <Content contentContainerStyle={{ justifyContent: 'space-between' }} > 
+        <GroceryContext.Provider value={{state: this.state, updateValue: this.updateValue}}>
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'flex-end',}}>
+          <ScannerScreen items={this.props.items} style={{ flex: 0.2 }} />  
+          <Content contentContainerStyle={{ justifyContent: 'space-between' }} style={{ flex: 0.6 }}> 
             <View >
               <InputBox />
             </View>
             <View >   
               { this.state.GroceryItems.map((item, key)=>( 
                 <GroceryItem
-                  data = {item} 
-                  itemCount = {key}
+                  key={key}
+                  data={item} 
+                  itemCount={key}
                 /> 
                 )
               )} 
             </View>
           </Content>
 
-            <View style={{flex: 1, flexDirection: 'column', justifyContent: 'flex-end',}}>
-
+            <View style={{flex: 0.2, flexDirection: 'column', justifyContent: 'flex-end',}}>
               <View style={{
                   alignSelf: 'flex-end',
                   flex: 0,
                   padding: 5,
                   flexDirection: 'row',
                   marginVertical: 5}} >
-                <View style={{ flex: 0.4 }}><Employee /></View>
+                <View style={{ flex: 0.4 }}>
+                  <Employee />
+                </View>
                 <View style={{ flex: 0.3 }}>
                   <View  style={{ flex:1, justifyContent: "center", alignItems: 'center' }}>
                     <Text>Total: {this.getTotalAmount()}</Text>
@@ -122,8 +134,8 @@ class Todo extends Component {
                   </Button>
                 </View>
               </View>
-
             </View>
+        </View> 
         </GroceryContext.Provider> 
       </Container>
     );
