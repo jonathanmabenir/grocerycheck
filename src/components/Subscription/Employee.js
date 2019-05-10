@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Subscription } from 'react-apollo';
-// import { Picker } from "native-base";
 import { Picker } from 'react-native';
 import { fetchEmployees } from '../../queries/store';
 

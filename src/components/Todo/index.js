@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Container, Content, List } from 'native-base';
-import { View , Text, StatusBar } from 'react-native';
+import { Container, Content, Button  } from 'native-base';
+import { View , Text, Alert } from 'react-native';
 import {Font, AppLoading} from 'expo';
 import {withApollo, compose} from 'react-apollo';
 
@@ -31,16 +31,17 @@ class Todo extends Component {
       filter: type
     })
   }
-
+  componentDidMount() {
+    setTimeout(function () {
+      this.setState({ loading: false });
+    }.bind(this), 2000)
+  }
   async componentWillMount() {
     await Font.loadAsync({
       'Roboto': require('native-base/Fonts/Roboto.ttf'),
       'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
       'Ionicons': require('native-base/Fonts/Ionicons.ttf')
     });
-    setTimeout(function () {
-      this.setState({ loading: false });
-    }.bind(this), 2000)
   }
 
   updateValue = (key, val) => {
@@ -48,12 +49,29 @@ class Todo extends Component {
   }
 
   getTotalAmount(){ 
-     
     let total = 0; 
     this.state.GroceryItems.map((item) => { 
       total = total +  item.price; 
     }) 
      return total; 
+  }
+
+  onSubmit = () => {
+    Alert.alert(
+      'BUY Item',
+      'Do you want to buy this item now?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: () => {
+          console.log(this.props)
+        }},
+      ],
+      {cancelable: false},
+    );
   }
 
   render() {
@@ -63,38 +81,50 @@ class Todo extends Component {
  
     return (
       <Container>
-       <GroceryContext.Provider value={{state: this.state, updateValue: this.updateValue}}>      
-          
-            <ScannerScreen items={this.props.items} />  
-
-            <Content contentContainerStyle={{ justifyContent: 'space-between' }} > 
+        <GroceryContext.Provider value={{state: this.state, updateValue: this.updateValue}}>      
+          <ScannerScreen items={this.props.items} />  
+          <Content contentContainerStyle={{ justifyContent: 'space-between' }} > 
             <View >
-            <InputBox />
-          </View>
+              <InputBox />
+            </View>
             <View >   
               { this.state.GroceryItems.map((item, key)=>( 
-                    <GroceryItem
-                      data = {item} 
-                      itemCount = {key}
-                    /> 
+                <GroceryItem
+                  data = {item} 
+                  itemCount = {key}
+                /> 
                 )
               )} 
-              </View>    
-            </Content>
+            </View>
+          </Content>
 
-            <View
-          style={{
-            padding: 5,
-            marginVertical: 5,
-            borderTopWidth: 0.5
-          }}
-        >
-         <Text>Total Price: Php{this.getTotalAmount()}</Text>
-          <Employee />
-        </View>
- 
+            <View style={{flex: 1, flexDirection: 'column', justifyContent: 'flex-end',}}>
+
+              <View style={{
+                  alignSelf: 'flex-end',
+                  flex: 0,
+                  padding: 5,
+                  flexDirection: 'row',
+                  marginVertical: 5}} >
+                <View style={{ flex: 0.4 }}><Employee /></View>
+                <View style={{ flex: 0.3 }}>
+                  <View  style={{ flex:1, justifyContent: "center", alignItems: 'center' }}>
+                    <Text>Total: {this.getTotalAmount()}</Text>
+                  </View>
+                </View>
+                <View style={{ flex: 0.3 }}>
+                  <Button
+                    style={{flex:1,justifyContent: "center",alignItems: "center", alignSelf: 'stretch',}}
+                    onPress={this.onSubmit}
+                    success
+                  >
+                    <Text style={{ color: '#ffffff', textAlign: 'center', alignContent: 'center' }}> BUY </Text>
+                  </Button>
+                </View>
+              </View>
+
+            </View>
         </GroceryContext.Provider> 
-
       </Container>
     );
   }
