@@ -10,13 +10,19 @@ import ScannerScreen from '../Barcode/ScannerScreen';
 import WithItems from '../Subscription/WithItems';
 import Employee from '../Subscription/Employee';
 
+
+import GroceryContext from '../GroceryContext';
+import GroceryItem from './GroceryItem'; 
+
 class Todo extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
       filter: 'all',
-      loading: true 
+      loading: true,
+
+      GroceryItems:[],
     };
   }
 
@@ -37,34 +43,57 @@ class Todo extends Component {
     }.bind(this), 2000)
   }
 
+  updateValue = (key, val) => {
+    this.setState({[key]: val});
+  }
+
+  getTotalAmount(){ 
+     
+    let total = 0; 
+    this.state.GroceryItems.map((item) => { 
+      total = total +  item.price; 
+    }) 
+     return total; 
+  }
+
   render() {
     if (this.state.loading) {
-      return <AppLoading />;
+      return <AppLoading />; 
     }
+ 
     return (
       <Container>
+       <GroceryContext.Provider value={{state: this.state, updateValue: this.updateValue}}>      
+          
+            <ScannerScreen items={this.props.items} />  
 
-        <ScannerScreen  style={{ flex: 1 }} items={this.props.items}/>
-
-        <Content style={{ flex: 0.8 }}>
-          <View >
+            <Content contentContainerStyle={{ justifyContent: 'space-between' }} > 
+            <View >
             <InputBox />
           </View>
-          <View  style={{ flex: 3 }} >
-            <List>
-              <TodoList items={this.props.items}/>
-            </List>
-          </View>
-        </Content>
-        <View
+            <View >   
+              { this.state.GroceryItems.map((item, key)=>( 
+                    <GroceryItem
+                      data = {item} 
+                      itemCount = {key}
+                    /> 
+                )
+              )} 
+              </View>    
+            </Content>
+
+            <View
           style={{
             padding: 5,
             marginVertical: 5,
             borderTopWidth: 0.5
           }}
         >
+         <Text>Total Price: Php{this.getTotalAmount()}</Text>
           <Employee />
         </View>
+ 
+        </GroceryContext.Provider> 
 
       </Container>
     );

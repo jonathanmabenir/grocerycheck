@@ -1,18 +1,20 @@
 import React from 'react';
-import { Subscription } from 'react-apollo';
+import { Subscription, compose } from 'react-apollo';
 import {
   Container, Header, Content,Spinner
 } from 'native-base';
 import TodoItem from './TodoItem';
 import { Text, View } from 'react-native';
-import { fetchTodos } from '../../queries';
+import { fetchTodos } from '../../queries';    
+import withContext from "../Subscription/WithContext";
 
-const TodoList = ({item, filter}) => (
+const TodoList = ( props ) => (
   <Subscription
     subscription={fetchTodos}
   >
     {
-      ({ loading, data, error}) => {
+      ({ loading, data, error}) => { 
+
         if (loading) {
           return (
             <Container>
@@ -29,28 +31,12 @@ const TodoList = ({item, filter}) => (
         if (data.todo.length === 0) {
           return (
             <View style={{ alignItems: 'center', paddingTop: 10 }}>
-              <Text>No {filter === 'all' ? '' : `${filter} `}todos</Text>
+              {/* <Text>No {filter === 'all' ? '' : `${filter} `}todos</Text> */}
+              <Text>no no no</Text>
             </View>
           );
-        }
-        if (filter === 'active') {
-          return data.todo.filter(t => !t.is_completed).map((todo) => (
-            <TodoItem
-              todo={todo}
-              key={todo.id}
-              filter={filter}
-            />
-          ));
-        }
-        if (filter === 'completed') {
-          return data.todo.filter(t => t.is_completed).map((todo) => (
-            <TodoItem
-              todo={todo}
-              key={todo.id}
-              filter={filter}
-            />
-          ));
-        }
+        } 
+
         return data.todo.map((todo) => (
           <TodoItem
             todo={todo}
@@ -64,4 +50,8 @@ const TodoList = ({item, filter}) => (
   </Subscription>
 )
 
-export default TodoList;
+ 
+//  export default TodoList;
+export default compose( 
+  withContext
+)(TodoList);

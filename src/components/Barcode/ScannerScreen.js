@@ -4,7 +4,7 @@ import {
   View,
 } from 'react-native'
 import ExpoScanner from './ExpoScanner';
-
+ 
 class ScannerScreen extends React.Component {
 
   constructor(props) {
@@ -30,10 +30,11 @@ class ScannerScreen extends React.Component {
           <ActivityIndicator size='large' />
         </View>
       );
-    }
-    return (<ExpoScanner items={{...this.props.items}} />);
+    }  
+
+    return (<ExpoScanner items={this.props.items} />);
   }
-};
+}
 
 const styles = {
   container: {

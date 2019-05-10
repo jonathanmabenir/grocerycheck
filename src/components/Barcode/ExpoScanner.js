@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, Vibration, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Vibration, StyleSheet, ListView, Dimensions } from 'react-native'; 
 import { Camera, BarCodeScanner, Permissions, Constants } from 'expo';
-import {withApollo} from 'react-apollo';
+import {withApollo, compose} from 'react-apollo';
 import { insertProduct } from '../../queries';
+
+
+import withContext from "../Subscription/WithContext";
 
 const styles = StyleSheet.create({
   container: {
@@ -46,6 +49,8 @@ const styles = StyleSheet.create({
   maskCenter: { flexDirection: 'row' },
 });
 
+var GroceryItems = [] ; 
+
 class ExpoScanner extends Component {
   constructor(props) {
     super(props);
@@ -57,9 +62,10 @@ class ExpoScanner extends Component {
     this.state = {
       hasCameraPermission: null,
       type: Camera.Constants.Type.back,
-      showModal: false
+      showModal: false,  
+        ReturnMessage:"" 
     };
-  }
+  } 
 
   async componentWillMount() {
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
@@ -70,17 +76,26 @@ class ExpoScanner extends Component {
   onBarCodeRead({ type, data } ) {
     if ((type === this.state.scannedItem.type && data === this.state.scannedItem.data) || data === null) {
       return;
-    }
-
+    } 
+  
     Vibration.vibrate(100);
 
     const { items } = this.props.items;
 
     let itemSearched = items.find(({barcode}) => barcode === data);
 
+    if(itemSearched==null)
+      return;
+
+    //Adding Items To Array.
+    GroceryItems.push( itemSearched );
+ 
+    this.props.context.updateValue( 'GroceryItems', GroceryItems);
+
     this.setState({ 
       scannedItem: { data : itemSearched.name, type },
-    });
+      // scannedItem: { data : GroceryItems, type },
+    }); 
     
   }
 
@@ -100,11 +115,28 @@ class ExpoScanner extends Component {
     this.scannedCode = null;
     this.setState({
       scannedItem: {
-        type: null,
+        type: null, 
         data: null
       }
     });
   }
+
+  // var categories = [{ id: 0, text: 'hasan' }, 
+  //   { id: 1, text: 'erkan' },
+  //   { id: 2, text: 'veli' }];
+ 
+  renderCategories() {
+      return SampleArray.map((item, index) => <Text key={index}>{item.name}</Text>);
+  }
+  renderRow ({ item }) {
+    return (
+      <ListItem
+        roundAvatar
+        title={item.name}
+        subtitle={item.name} 
+      />
+    )
+  } 
 
   render() {
     const { hasCameraPermission } = this.state;
@@ -116,16 +148,22 @@ class ExpoScanner extends Component {
       return <Text>No access to camera</Text>;
     }
     return (
-      <View style={styles.container}>
-        <View style={{ flex: 1 }}>
-          <BarCodeScanner
-            onBarCodeScanned={this.onBarCodeRead}
-            style={{...StyleSheet.absoluteFill, height: 100}}
-          />
-          {this.renderMessage()}
-        </View>
-      </View>
+ 
+        <View style={styles.container}>
+          <View style={{ flex: 1 }}>
+            <BarCodeScanner
+              onBarCodeScanned={ this.onBarCodeRead}
+              style={{...StyleSheet.absoluteFill, height: 100}}
+            />
+            {this.renderMessage()}  
+          </View>  
+        </View> 
     );
   }
-}
-export default withApollo(ExpoScanner);
+} 
+
+
+export default compose(
+  withApollo, 
+  withContext
+)(ExpoScanner);
