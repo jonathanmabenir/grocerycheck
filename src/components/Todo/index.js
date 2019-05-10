@@ -45,9 +45,23 @@ class Todo extends Component {
   }
  
 
-  updateValue = (key, val) => {
-    // this.setState({[key]: val});
+  updateValue = (key, val) => { 
     this.setState({GroceryItems: val});
+  }
+
+  removeElement = (itemId) => { 
+    this.setState({GroceryItems: this.state.GroceryItems.filter(function(item) { 
+      return item.itemId !== itemId
+    })}); 
+  }
+
+  addScannedItem = (scannedItem) => {  
+    this.setState(prevState => ({
+      GroceryItems: [
+          ...prevState.GroceryItems, scannedItem
+      ]
+    }))  
+    
   }
 
   getTotalAmount(){ 
@@ -90,7 +104,12 @@ class Todo extends Component {
     }
     return (
       <Container>
-        <GroceryContext.Provider value={{state: this.state, updateValue: this.updateValue}}>
+        <GroceryContext.Provider value={{
+          state: this.state,
+          updateValue: this.updateValue,
+          removeElement: this.removeElement,
+          addScannedItem: this.addScannedItem
+          }}>
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'flex-end',}}>
           <ScannerScreen items={this.props.items} style={{ flex: 0.2 }} />  
           <Content contentContainerStyle={{ justifyContent: 'space-between' }} style={{ flex: 0.6 }}> 

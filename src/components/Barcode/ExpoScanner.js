@@ -76,11 +76,13 @@ class ExpoScanner extends Component {
   }
  
   onBarCodeRead({ type, data } ) {
+    
     if ((type === this.state.scannedItem.type && data === this.state.scannedItem.data) || data === null) {
       return;
-    }  
-
+    }   
+    
     const { items } = this.props.items;
+
     let searchResult = items.find(({barcode}) => barcode === data);
   
     if(searchResult==null)
@@ -88,20 +90,15 @@ class ExpoScanner extends Component {
 
     Vibration.vibrate(100);
 
-    let itemSearched = Object.assign({}, searchResult);
-    itemSearched.itemId = this.getTimestampForId(); 
-
-    this.setState(prevState => ({
-      GroceryItems: [
-          ...prevState.GroceryItems, itemSearched
-      ]
-    }))  
+    let itemSearched = Object.assign({}, searchResult);//creating copy of object
+    itemSearched.itemId = this.getTimestampForId();    //updating property/value 
     
-    this.props.context.updateValue( 'GroceryItems', this.state.GroceryItems);
+    this.props.context.addScannedItem(itemSearched);
  
     this.setState({ 
-      scannedItem: { data : itemSearched.name, type },
+      scannedItem: { data : itemSearched.name, type }, 
     });  
+    
   }
 
   renderMessage() {

@@ -2,22 +2,15 @@ import React from 'react';
 import { Text, ListItem, Body, View, Icon } from 'native-base';
 
 import {compose} from 'react-apollo';  
-import withContext from "../Subscription/WithContext";  
+import withContext from "../Subscription/WithContext";   
+import _ from 'lodash';
  
 
 const GroceryItem = ({context, data, itemCount}) => {
  
-  const deleteItem = ({data}) => {
-  
-      let currItems = context.state.GroceryItems; 
-      // console.log("currItems"); 
-      // console.log(currItems); 
-         
-      let filteredArray = currItems.filter(item => {  
-          return item.itemId !== data.itemId}
-        )
- 
-       context.updateValue( 'GroceryItems', filteredArray); 
+  const deleteItem = ({data}) => { 
+      //let currItems = context.state.GroceryItems;   
+       context.removeElement( data.itemId);
     }
      
   return (
