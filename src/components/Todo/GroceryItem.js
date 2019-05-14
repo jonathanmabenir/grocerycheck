@@ -8,9 +8,8 @@ import _ from 'lodash';
 
 const GroceryItem = ({context, data, itemCount}) => {
  
-  const deleteItem = ({data}) => { 
-      //let currItems = context.state.GroceryItems;   
-       context.removeElement( data.itemId);
+  const deleteItem = ({data}) => {   
+       context.removeElement( data.itemToken);
     }
      
   return (

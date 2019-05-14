@@ -29,7 +29,8 @@ class InputBox extends Component {
                   flex: 0,
                   padding: 5,
                   flexDirection: 'row',
-                  marginVertical: 5
+                  marginVertical: 5,
+                  backgroundColor: '#ffffff'
                 }}
               >
                 <InputGroup
